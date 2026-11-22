@@ -1,5 +1,18 @@
 import { defineConfig } from 'vite';
-import puterLocalhost from '../../dev/puter-localhost.mjs';
+
+const puterLocalhost = (name) => ({
+  name: 'puter-localhost',
+  apply: 'serve',
+  configureServer(server) {
+    server.httpServer?.on('listening', () => {
+      const local = server.resolvedUrls?.local[0];
+      if (!local) return;
+      const url = new URL(local);
+      url.hostname = `${name}.puter.localhost`;
+      server.resolvedUrls.local = [url.href];
+    });
+  },
+});
 
 export default defineConfig({
   plugins: [puterLocalhost('pos')],
